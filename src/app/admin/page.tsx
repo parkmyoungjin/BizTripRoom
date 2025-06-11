@@ -94,7 +94,7 @@ export default function AdminPage() {
         alert('비밀번호가 틀렸습니다.');
         setPassword('');
       }
-    } catch (error) {
+    } catch {
       alert('로그인 중 오류가 발생했습니다.');
       setPassword('');
     } finally {
