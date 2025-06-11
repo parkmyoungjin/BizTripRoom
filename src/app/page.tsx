@@ -277,14 +277,14 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
       {/* 모바일 친화적 헤더 */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+              <header className="bg-gray-800 shadow-sm border-b border-gray-700 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center space-x-2 sm:space-x-3">
               <Plane className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">출장 정보</h1>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">출장 정보</h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
@@ -292,8 +292,8 @@ export default function Home() {
                 disabled={isRefreshing}
                 className={`p-2 rounded-lg transition-colors ${
                   isRefreshing 
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed' 
+                    : 'bg-blue-900 text-blue-400 hover:bg-blue-800'
                 }`}
                 title="새로고침"
               >
@@ -301,7 +301,7 @@ export default function Home() {
               </button>
               <Link 
                 href="/admin" 
-                className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
                 title="관리자"
               >
                 <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -317,7 +317,7 @@ export default function Home() {
           
           {/* 출장 정보 카드 - 모바일 우선 */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-700 overflow-hidden">
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 sm:p-6">
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white flex items-center">
                   <MapPin className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
@@ -336,11 +336,11 @@ export default function Home() {
               </div>
               
               <div className="p-4 sm:p-6">
-                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">{tripInfo.description}</p>
+                <p className="text-sm sm:text-base text-gray-300 mb-4 sm:mb-6">{tripInfo.description}</p>
                 
                 {/* 일정 - 모바일 최적화 */}
                 <div className="space-y-3 sm:space-y-4">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                  <h3 className="text-base sm:text-lg font-semibold text-white flex items-center">
                     <Calendar className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                     출장 일정
                   </h3>
@@ -348,15 +348,15 @@ export default function Home() {
                     {tripInfo.schedule.map((item, index) => (
                       <div 
                         key={index} 
-                        className="flex items-center p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100"
+                        className="flex items-center p-3 sm:p-4 bg-gray-700 rounded-lg sm:rounded-xl border border-gray-600"
                       >
-                        <div className="flex-shrink-0 w-16 sm:w-20 text-xs sm:text-sm font-medium text-gray-600">
+                        <div className="flex-shrink-0 w-16 sm:w-20 text-xs sm:text-sm font-medium text-gray-300">
                           {item.time}
                         </div>
                         <div className="flex-shrink-0 text-lg sm:text-xl mr-2 sm:mr-3">
                           {item.emoji}
                         </div>
-                        <div className="flex-1 text-sm sm:text-base text-gray-900 font-medium">
+                        <div className="flex-1 text-sm sm:text-base text-white font-medium">
                           {item.activity}
                         </div>
                       </div>
@@ -367,8 +367,8 @@ export default function Home() {
             </div>
 
             {/* 참석자 목록 - 모바일 최적화 */}
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+            <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-700 p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-4 sm:mb-6 flex items-center">
                 <Users className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                 참석자 현황
               </h3>
@@ -376,15 +376,15 @@ export default function Home() {
                 {attendees.map((attendee) => (
                   <div 
                     key={attendee.id} 
-                    className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100"
+                    className="flex items-center justify-between p-3 sm:p-4 bg-gray-700 rounded-lg sm:rounded-xl border border-gray-600"
                   >
                     <div className="flex items-center space-x-2 sm:space-x-3">
                       <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
                         attendee.confirmed ? 'bg-green-500' : 'bg-yellow-500'
                       }`}></div>
                       <div>
-                        <div className="font-medium text-sm sm:text-base text-gray-900">{attendee.name}</div>
-                        <div className="text-xs sm:text-sm text-gray-500">{attendee.position}</div>
+                        <div className="font-medium text-sm sm:text-base text-white">{attendee.name}</div>
+                        <div className="text-xs sm:text-sm text-gray-300">{attendee.position}</div>
                       </div>
                     </div>
                     <span className={`text-xs sm:text-sm px-2 py-1 rounded-full font-medium ${
@@ -402,9 +402,9 @@ export default function Home() {
 
           {/* 채팅 영역 - 모바일 최적화 */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 h-full flex flex-col">
-              <div className="p-4 sm:p-6 border-b border-gray-200">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+            <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-700 h-full flex flex-col">
+              <div className="p-4 sm:p-6 border-b border-gray-700">
+                <h3 className="text-base sm:text-lg font-semibold text-white flex items-center">
                   <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   질문 & 답변
                 </h3>
@@ -414,23 +414,23 @@ export default function Home() {
               <div className="flex-1 p-4 sm:p-6 overflow-y-auto max-h-64 sm:max-h-96 lg:max-h-none">
                 <div className="space-y-3 sm:space-y-4">
                   {messages.map((message) => (
-                    <div key={message.id} className="border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-gray-50">
+                    <div key={message.id} className="border border-gray-600 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-gray-700">
                       <div className="flex justify-between items-start mb-2">
                         <span className="font-medium text-xs sm:text-sm text-blue-600">{message.author}</span>
                         <span className="text-xs text-gray-500">{message.time}</span>
                       </div>
-                      <p className="text-sm sm:text-base text-gray-800 mb-2 sm:mb-3">{message.content}</p>
+                      <p className="text-sm sm:text-base text-white mb-2 sm:mb-3">{message.content}</p>
                       
                       {/* 답변 목록 */}
                       {message.replies.length > 0 && (
-                        <div className="space-y-2 border-l-2 border-blue-200 pl-3 sm:pl-4">
+                        <div className="space-y-2 border-l-2 border-blue-500 pl-3 sm:pl-4">
                           {message.replies.map((reply) => (
-                            <div key={reply.id} className="bg-white p-2 sm:p-3 rounded-md sm:rounded-lg">
+                            <div key={reply.id} className="bg-gray-800 p-2 sm:p-3 rounded-md sm:rounded-lg">
                               <div className="flex justify-between items-start mb-1">
-                                <span className="font-medium text-xs sm:text-sm text-gray-700">{reply.author}</span>
-                                <span className="text-xs text-gray-500">{reply.time}</span>
-                              </div>
-                              <p className="text-xs sm:text-sm text-gray-600">{reply.content}</p>
+                                                              <span className="font-medium text-xs sm:text-sm text-gray-300">{reply.author}</span>
+                              <span className="text-xs text-gray-500">{reply.time}</span>
+                            </div>
+                            <p className="text-xs sm:text-sm text-gray-200">{reply.content}</p>
                             </div>
                           ))}
                         </div>
@@ -448,20 +448,20 @@ export default function Home() {
               </div>
               
               {/* 질문 입력 폼 - 모바일 최적화 */}
-              <div className="p-4 sm:p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl sm:rounded-b-2xl">
+              <div className="p-4 sm:p-6 border-t border-gray-700 bg-gray-700 rounded-b-xl sm:rounded-b-2xl">
                 <div className="space-y-3">
                   <input
                     type="text"
                     value={authorName}
                     onChange={(e) => setAuthorName(e.target.value)}
                     placeholder="이름을 입력하세요"
-                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 text-sm sm:text-base bg-gray-600 border border-gray-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-300"
                   />
                   <textarea
                     value={newQuestion}
                     onChange={(e) => setNewQuestion(e.target.value)}
                     placeholder="질문을 입력하세요..."
-                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 text-sm sm:text-base bg-gray-600 border border-gray-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none placeholder-gray-300"
                     rows={3}
                   />
                   <button

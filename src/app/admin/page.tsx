@@ -211,24 +211,24 @@ export default function AdminPage() {
   // 로그인 화면
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 w-full max-w-md p-6 sm:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center px-4">
+        <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-700 w-full max-w-md p-6 sm:p-8">
           <div className="text-center mb-6 sm:mb-8">
-            <Lock className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mb-3 sm:mb-4" />
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">관리자 로그인</h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-2">출장 정보를 수정하려면 로그인해주세요.</p>
+            <Lock className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-blue-400 mb-3 sm:mb-4" />
+            <h1 className="text-xl sm:text-2xl font-bold text-white">관리자 로그인</h1>
+            <p className="text-sm sm:text-base text-gray-300 mt-2">출장 정보를 수정하려면 로그인해주세요.</p>
           </div>
           
           <div className="space-y-4 sm:space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">비밀번호</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                 placeholder="비밀번호를 입력하세요"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
                 disabled={isLoading}
               />
             </div>
@@ -236,7 +236,7 @@ export default function AdminPage() {
             <button
               onClick={handleLogin}
               disabled={isLoading || !password.trim()}
-              className="w-full bg-blue-600 text-white py-2 sm:py-3 px-4 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-blue-600 text-white py-2 sm:py-3 px-4 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? '로그인 중...' : '로그인'}
             </button>
@@ -248,14 +248,14 @@ export default function AdminPage() {
 
   // 관리자 페이지 메인
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
       {/* 모바일 친화적 헤더 */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+              <header className="bg-gray-800 shadow-sm border-b border-gray-700 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <Lock className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">관리자 페이지</h1>
+              <Lock className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">관리자 페이지</h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
@@ -263,7 +263,7 @@ export default function AdminPage() {
                 disabled={isSaving}
                 className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors ${
                   isSaving 
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
                     : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
               >
@@ -272,7 +272,7 @@ export default function AdminPage() {
               </button>
               <Link 
                 href="/" 
-                className="px-3 sm:px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors text-sm sm:text-base font-medium"
+                className="px-3 sm:px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors text-sm sm:text-base font-medium"
               >
                 메인으로
               </Link>
@@ -286,8 +286,8 @@ export default function AdminPage() {
         <div className="space-y-4 sm:space-y-6 lg:space-y-8">
           
           {/* 출장 기본 정보 편집 */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">출장 기본 정보</h2>
+          <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-700 p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">출장 기본 정보</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">출장 제목</label>
