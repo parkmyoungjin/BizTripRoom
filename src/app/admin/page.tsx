@@ -184,16 +184,15 @@ export default function AdminPage() {
           <div className="text-center mb-6">
             <Lock className="h-12 w-12 text-blue-600 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900">관리자 로그인</h1>
-            <p className="text-gray-600 mt-2">4자리 비밀번호를 입력하세요</p>
+            <p className="text-gray-600 mt-2">비밀번호를 입력하세요</p>
           </div>
           <div className="space-y-4">
             <input
               type="password"
-              placeholder="비밀번호 (4자리)"
+              placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl tracking-widest"
-              maxLength={4}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg"
               onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
             />
             <button
