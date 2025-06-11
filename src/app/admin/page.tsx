@@ -55,24 +55,26 @@ export default function AdminPage() {
   const [attendees, setAttendees] = useState(defaultAttendees);
   const [messages, setMessages] = useState(defaultMessages);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // 컴포넌트 마운트 시 localStorage에서 데이터 로드
+  // 컴포넌트 마운트 시 서버에서 데이터 로드
   useEffect(() => {
-    const savedTripInfo = localStorage.getItem('tripInfo');
-    const savedAttendees = localStorage.getItem('attendees');
-    const savedMessages = localStorage.getItem('chatMessages');
-    
-    if (savedTripInfo) {
-      setTripInfo(JSON.parse(savedTripInfo));
-    }
-    
-    if (savedAttendees) {
-      setAttendees(JSON.parse(savedAttendees));
-    }
+    const loadDataFromServer = async () => {
+      try {
+        const response = await fetch('/api/data');
+        if (response.ok) {
+          const data = await response.json();
+          setTripInfo(data.tripInfo || defaultTripInfo);
+          setAttendees(data.attendees || defaultAttendees);
+          setMessages(data.chatMessages || defaultMessages);
+        }
+      } catch (error: unknown) {
+        console.error('데이터 로드 오류:', error);
+        // 오류 시 기본값 사용
+      }
+    };
 
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
-    }
+    loadDataFromServer();
   }, []);
 
   const handleLogin = async () => {
@@ -162,19 +164,47 @@ export default function AdminPage() {
     setMessages(updatedMessages);
   };
 
-  const handleSave = () => {
+  // 저장 처리
+  const handleSave = async () => {
+    if (!isAuthenticated) return;
+    
+    setIsSaving(true);
+    
     try {
-      localStorage.setItem('tripInfo', JSON.stringify(tripInfo));
-      localStorage.setItem('attendees', JSON.stringify(attendees));
-      localStorage.setItem('chatMessages', JSON.stringify(messages));
+      const dataToSave = {
+        tripInfo,
+        attendees,
+        chatMessages: messages
+      };
       
-      // 커스텀 이벤트 발생시켜 다른 컴포넌트에 변경 알림
-      window.dispatchEvent(new Event('localStorageUpdate'));
+      console.log('저장할 데이터:', dataToSave); // 디버깅용
       
-      alert('저장되었습니다!');
-    } catch {
+      const response = await fetch('/api/data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSave),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          const now = new Date().toLocaleString('ko-KR');
+          alert(`모든 정보가 성공적으로 저장되었습니다!\n저장 시간: ${now}\n\n메인 페이지에서 변경사항을 확인하세요.`);
+          console.log('저장 완료:', now);
+        } else {
+          alert('저장 중 오류가 발생했습니다: ' + result.error);
+        }
+      } else {
+        alert('서버 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      console.error('저장 오류:', error);
       alert('저장 중 오류가 발생했습니다.');
     }
+    
+    setIsSaving(false);
   };
 
   if (!isAuthenticated) {
@@ -216,6 +246,7 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-gray-900">관리자 페이지</h1>
             <button
               onClick={handleSave}
+              disabled={isSaving}
               className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
             >
               <Save className="h-4 w-4" />

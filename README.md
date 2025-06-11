@@ -1,23 +1,25 @@
 # 출장 정보 공유 시스템
 
+실시간으로 출장 정보를 공유하고 소통할 수 있는 웹 애플리케이션입니다.
+
 ## 📋 프로젝트 소개
 
 출장 참석자들이 일정, 참석자 정보를 확인하고 실시간으로 소통할 수 있는 웹 애플리케이션입니다.
 
 ## ✨ 주요 기능
 
-- **📅 일정 관리**: 시간별 활동 일정을 시각적으로 확인
-- **👥 참석자 관리**: 참석자 목록 및 참석 확정 상태 관리
-- **💬 실시간 소통**: 질문과 답변을 통한 참석자 간 소통
-- **🛠️ 관리자 페이지**: 일정 및 참석자 정보 수정 기능
+- 📊 **실시간 데이터 동기화**: Vercel KV를 사용한 실시간 데이터 공유
+- 💬 **실시간 채팅**: 질문과 답변 시스템
+- 👥 **참석자 관리**: 참석자 추가/삭제 및 확인 상태 관리
+- 📅 **일정 관리**: 출장 일정 생성 및 관리
+- 🔐 **관리자 페이지**: 비밀번호로 보호되는 관리 기능
 - **📱 모바일 최적화**: 반응형 디자인으로 모든 기기에서 사용 가능
 
 ## 🚀 기술 스택
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
-- **Storage**: Local Storage
+- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: Vercel KV (Redis)
 - **Deployment**: Vercel
 
 ## 📦 설치 및 실행
@@ -49,10 +51,9 @@ npm start
 - 질문 작성 및 답변 기능
 
 ### 관리자 페이지
-- 비밀번호: `1234`
-- 출장 기본 정보 수정
-- 일정 추가/수정/삭제 (시간, 활동, 이모지, 색상)
-- 참석자 추가/수정/삭제
+- 관리자 페이지(`/admin`)에서 로그인
+- 출장 정보, 참석자, 채팅 관리
+- 변경사항은 즉시 모든 사용자에게 반영
 
 ## 📱 주요 화면
 
@@ -70,11 +71,37 @@ npm start
 
 이 프로젝트는 Vercel에 최적화되어 있습니다.
 
-### Vercel 배포 방법
+### Vercel 배포 가이드
 1. GitHub에 코드 업로드
 2. Vercel 계정으로 로그인
 3. GitHub 저장소 연결
 4. 자동 배포 완료
+
+### 1. GitHub에 코드 업로드
+
+```bash
+git add .
+git commit -m "Vercel KV 적용 완료"
+git push origin main
+```
+
+### 2. Vercel 대시보드에서 프로젝트 생성
+
+1. [Vercel 대시보드](https://vercel.com/dashboard)에 접속
+2. "Add New..." → "Project" 클릭
+3. GitHub 저장소 선택 후 Import
+
+### 3. Vercel KV 스토어 생성
+
+1. 프로젝트 대시보드에서 "Storage" 탭 클릭
+2. "Create Database" → "KV" 선택
+3. 데이터베이스 이름 입력 후 생성
+4. 환경 변수가 자동으로 설정됨 (`KV_REST_API_URL`, `KV_REST_API_TOKEN`)
+
+### 4. 배포 확인
+
+- 배포가 완료되면 자동으로 도메인이 할당됩니다
+- 여러 사용자가 동시에 접속하여 실시간 데이터 공유를 테스트할 수 있습니다
 
 ## 📂 프로젝트 구조
 

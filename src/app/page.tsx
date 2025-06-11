@@ -1,11 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Calendar, MapPin, Users, MessageCircle, Plane, Settings, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-// 빌드 타임스탬프 (배포시마다 변경됨)
-const BUILD_TIMESTAMP = Date.now();
+import { 
+  Plane, 
+  MapPin, 
+  Calendar, 
+  Users, 
+  MessageCircle, 
+  RefreshCw, 
+  Settings
+} from 'lucide-react';
 
 // 기본 데이터 (localStorage에 데이터가 없을 때 사용)
 const defaultTripInfo = {
@@ -57,107 +62,204 @@ export default function Home() {
   const [attendees, setAttendees] = useState(defaultAttendees);
   const [messages, setMessages] = useState(defaultMessages);
   const [newQuestion, setNewQuestion] = useState('');
+  const [newReply, setNewReply] = useState('');
+  const [replyTo, setReplyTo] = useState<number | null>(null);
   const [authorName, setAuthorName] = useState('');
   const [showReplyModal, setShowReplyModal] = useState(false);
-  const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
-  const [replyContent, setReplyContent] = useState('');
-  const [replyAuthor, setReplyAuthor] = useState('');
+  const [buildTimestamp, setBuildTimestamp] = useState<string>('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  // 컴포넌트 마운트 시 localStorage에서 데이터 로드
+  // 클라이언트에서만 타임스탬프 설정 (hydration 오류 방지)
   useEffect(() => {
-    const loadData = () => {
-      const savedTripInfo = localStorage.getItem('tripInfo');
-      const savedAttendees = localStorage.getItem('attendees');
-      const savedMessages = localStorage.getItem('chatMessages');
-      
-      if (savedTripInfo) {
-        setTripInfo(JSON.parse(savedTripInfo));
-      }
-      
-      if (savedAttendees) {
-        setAttendees(JSON.parse(savedAttendees));
-      }
+    setBuildTimestamp(Date.now().toString());
+  }, []);
 
-      if (savedMessages) {
-        setMessages(JSON.parse(savedMessages));
-      }
-    };
-
-    // 초기 로드
-    loadData();
-
-    // localStorage 변경 감지
-    const handleStorageChange = () => {
-      loadData();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
+  // 서버에서 데이터 로드 (캐시 방지 개선)
+  const loadDataFromServer = async (forceRefresh = false) => {
+    if (forceRefresh) {
+      setIsRefreshing(true);
+    }
     
-    // 같은 탭에서의 변경도 감지하기 위한 커스텀 이벤트
-    window.addEventListener('localStorageUpdate', handleStorageChange);
+    try {
+      // 캐시 방지를 위한 타임스탬프 추가
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/data?t=${timestamp}`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('서버에서 받은 데이터:', data); // 디버깅용
+        setTripInfo(data.tripInfo || defaultTripInfo);
+        setAttendees(data.attendees || defaultAttendees);
+        setMessages(data.chatMessages || defaultMessages);
+        setLastUpdated(data.lastUpdated || new Date().toISOString());
+        
+        if (forceRefresh) {
+          console.log('강제 새로고침 완료');
+        }
+      } else {
+        console.error('데이터 로드 실패:', response.status);
+      }
+    } catch (error: unknown) {
+      console.error('데이터 로드 오류:', error);
+    } finally {
+      if (forceRefresh) {
+        setIsRefreshing(false);
+      }
+    }
+  };
 
+  // 서버에 데이터 저장
+  const saveDataToServer = async (updatedData: {
+    tripInfo: typeof defaultTripInfo
+    attendees: typeof defaultAttendees
+    chatMessages: typeof defaultMessages
+  }) => {
+    try {
+      const response = await fetch('/api/data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        return result.success;
+      }
+      return false;
+    } catch (error: unknown) {
+      console.error('데이터 저장 실패:', error);
+      return false;
+    }
+  };
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    loadDataFromServer();
+  }, []);
+
+  // 정기적으로 데이터 새로고침 (5초마다로 단축)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadDataFromServer();
+    }, 5000); // 10초에서 5초로 단축
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // 페이지 포커스/가시성 변경 시 강제 새로고침
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('페이지 포커스 - 강제 새로고침 실행');
+      loadDataFromServer(true); // 포커스 시 강제 새로고침
+    };
+    
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('페이지 표시 - 강제 새로고침 실행');
+        loadDataFromServer(true); // 가시성 변경 시 강제 새로고침
+      }
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('localStorageUpdate', handleStorageChange);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
-  const handleAddQuestion = () => {
-    if (newQuestion.trim() && authorName.trim()) {
-      const question = {
-        id: messages.length + 1,
-        type: "question" as const,
-        author: authorName,
-        content: newQuestion,
-        time: "방금 전",
-        replies: []
-      };
-      const updatedMessages = [...messages, question];
+  // 질문 추가
+  const addQuestion = async () => {
+    if (!newQuestion.trim() || !authorName.trim()) return;
+    
+    const newMessage = {
+      id: Date.now(),
+      type: 'question',
+      author: authorName,
+      content: newQuestion,
+      time: new Date().toLocaleString(),
+      replies: []
+    };
+    
+    const updatedMessages = [...messages, newMessage];
+    const updatedData = {
+      tripInfo,
+      attendees,
+      chatMessages: updatedMessages
+    };
+    
+    const success = await saveDataToServer(updatedData);
+    if (success) {
       setMessages(updatedMessages);
-      // localStorage에 저장
-      localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
       setNewQuestion('');
+      setAuthorName('');
+    } else {
+      alert('질문 저장에 실패했습니다.');
+    }
+  };
+
+  // 답변 추가
+  const addReply = async (messageId: number) => {
+    if (!newReply.trim() || !authorName.trim()) return;
+    
+    const updatedMessages = messages.map(msg => {
+      if (msg.id === messageId) {
+        return {
+          ...msg,
+          replies: [...msg.replies, {
+            id: Date.now(),
+            author: authorName,
+            content: newReply,
+            time: new Date().toLocaleString()
+          }]
+        };
+      }
+      return msg;
+    });
+    
+    const updatedData = {
+      tripInfo,
+      attendees,
+      chatMessages: updatedMessages
+    };
+    
+    const success = await saveDataToServer(updatedData);
+    if (success) {
+      setMessages(updatedMessages);
+      setNewReply('');
+      setReplyTo(null);
+      setAuthorName('');
+    } else {
+      alert('답변 저장에 실패했습니다.');
     }
   };
 
   const handleQuestionClick = (questionId: number) => {
-    setSelectedQuestionId(questionId);
+    setReplyTo(questionId);
     setShowReplyModal(true);
-  };
-
-  const handleAddReply = () => {
-    if (replyContent.trim() && replyAuthor.trim() && selectedQuestionId) {
-      const updatedMessages = messages.map(message => {
-        if (message.id === selectedQuestionId) {
-          const newReply = {
-            id: message.replies.length + 1,
-            author: replyAuthor,
-            content: replyContent,
-            time: "방금 전"
-          };
-          return {
-            ...message,
-            replies: [...message.replies, newReply]
-          };
-        }
-        return message;
-      });
-      
-      setMessages(updatedMessages);
-      // localStorage에 저장
-      localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
-      setReplyContent('');
-      setReplyAuthor('');
-      setShowReplyModal(false);
-      setSelectedQuestionId(null);
-    }
   };
 
   const closeReplyModal = () => {
     setShowReplyModal(false);
-    setSelectedQuestionId(null);
-    setReplyContent('');
-    setReplyAuthor('');
+    setReplyTo(null);
+    setNewReply('');
+    setAuthorName('');
+  };
+
+  // 강제 새로고침 함수
+  const handleForceRefresh = async () => {
+    await loadDataFromServer(true);
   };
 
   return (
@@ -175,12 +277,17 @@ export default function Home() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => window.location.reload()}
-                className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
-                title="페이지 새로고침"
+                onClick={handleForceRefresh}
+                disabled={isRefreshing}
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                  isRefreshing 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-100 hover:bg-blue-200 text-blue-700'
+                }`}
+                title="데이터 강제 새로고침"
               >
-                <RefreshCw className="h-4 w-4" />
-                새로고침
+                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? '새로고침 중...' : '새로고침'}
               </button>
               <Link 
                 href="/admin"
@@ -191,6 +298,11 @@ export default function Home() {
               </Link>
             </div>
           </div>
+          {lastUpdated && (
+            <div className="mt-2 text-xs text-gray-500">
+              마지막 업데이트: {new Date(lastUpdated).toLocaleString('ko-KR')}
+            </div>
+          )}
         </div>
       </header>
 
@@ -371,7 +483,7 @@ export default function Home() {
                 className="w-full p-3 border border-gray-300 rounded-lg h-24 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <button
-                onClick={handleAddQuestion}
+                onClick={addQuestion}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 ↑
@@ -392,8 +504,8 @@ export default function Home() {
                 <input
                   type="text"
                   placeholder="이름을 입력하세요"
-                  value={replyAuthor}
-                  onChange={(e) => setReplyAuthor(e.target.value)}
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -401,14 +513,14 @@ export default function Home() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">답변 내용</label>
                 <textarea
                   placeholder="답변을 입력하세요..."
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
+                  value={newReply}
+                  onChange={(e) => setNewReply(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg h-24 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div className="flex gap-3">
                 <button
-                  onClick={handleAddReply}
+                  onClick={() => addReply(replyTo || 0)}
                   className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   답변 추가
@@ -429,7 +541,9 @@ export default function Home() {
       <footer className="bg-gray-800 text-white py-6 mt-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <p>&copy; 2025 출장 정보 공유 시스템</p>
-          <p className="text-xs text-gray-400 mt-2">Build: {BUILD_TIMESTAMP}</p>
+          {buildTimestamp && (
+            <p className="text-xs text-gray-400 mt-2">Build: {buildTimestamp}</p>
+          )}
         </div>
       </footer>
     </div>
