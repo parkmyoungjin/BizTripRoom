@@ -1,143 +1,94 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
 
-const KV_KEY = 'biz-trip-data';
-
-// 타입 정의
-interface Attendee {
-  id: number;
-  name: string;
-  position: string;
-  confirmed: boolean;
-}
-
-interface ChatMessage {
-  id: number;
-  type?: string;
-  author: string;
-  content: string;
-  time: string;
-  replies: Array<{
-    id: number;
-    author: string;
-    content: string;
-    time: string;
-  }>;
-}
-
-interface TripInfo {
-  title: string;
-  date: string;
-  location: string;
-  description: string;
-  schedule: Array<{
-    time: string;
-    activity: string;
-    emoji?: string;
-    color?: string;
-  }>;
-}
-
-interface TripData {
-  tripInfo: TripInfo;
-  attendees: Attendee[];
-  chatMessages: ChatMessage[];
-  lastUpdated?: string;
-}
-
-// 초기 데이터 (KV에 데이터가 없을 때만 사용)
-const initialData: TripData = {
+// 메모리 기반 데이터 저장소 (Vercel 환경용)
+let tripData = {
   tripInfo: {
-    title: "",
-    date: "",
-    location: "",
-    description: "",
-    schedule: []
+    title: "부산 비즈니스 출장",
+    date: "2024년 1월 15일 - 1월 17일",
+    location: "부산광역시",
+    description: "신규 거래처 미팅 및 지역 시장 조사를 위한 비즈니스 출장입니다.",
+    schedule: [
+      { time: "09:00", activity: "호텔 체크인", emoji: "🏨" },
+      { time: "10:30", activity: "거래처 미팅", emoji: "🤝" },
+      { time: "12:00", activity: "점심 식사", emoji: "🍽️" },
+      { time: "14:00", activity: "시장 조사", emoji: "📊" },
+      { time: "18:00", activity: "저녁 식사", emoji: "🌆" }
+    ]
   },
-  attendees: [],
-  chatMessages: [],
+  attendees: [
+    { id: 1, name: "김철수", position: "팀장", isConfirmed: true },
+    { id: 2, name: "이영희", position: "대리", isConfirmed: true },
+    { id: 3, name: "박민수", position: "사원", isConfirmed: false },
+    { id: 4, name: "정수진", position: "과장", isConfirmed: true }
+  ],
+  chatMessages: [
+    {
+      id: 1,
+      type: "question",
+      author: "김철수",
+      content: "호텔 예약은 완료되었나요?",
+      timestamp: "2024-01-10 14:30",
+      replies: [
+        {
+          id: 1,
+          author: "이영희",
+          content: "네, 모든 참석자분들의 호텔 예약이 완료되었습니다.",
+          timestamp: "2024-01-10 14:45"
+        }
+      ]
+    },
+    {
+      id: 2,
+      type: "question",
+      author: "박민수",
+      content: "출장 일정 중 개인 시간은 있나요?",
+      timestamp: "2024-01-10 15:20",
+      replies: [
+        {
+          id: 1,
+          author: "김철수",
+          content: "둘째 날 저녁 시간은 자유시간으로 배정되어 있습니다.",
+          timestamp: "2024-01-10 15:25"
+        }
+      ]
+    }
+  ],
   lastUpdated: new Date().toISOString()
 };
 
-// KV에서 데이터 읽기
-async function readData(): Promise<TripData> {
-  try {
-    const data = await kv.get<TripData>(KV_KEY);
-    return data || initialData;
-  } catch (error) {
-    console.error('KV 데이터 읽기 오류:', error);
-    return initialData;
-  }
-}
-
-// KV에 데이터 쓰기
-async function writeData(data: TripData): Promise<void> {
-  try {
-    const dataWithTimestamp = {
-      ...data,
-      lastUpdated: new Date().toISOString()
-    };
-    await kv.set(KV_KEY, dataWithTimestamp);
-  } catch (error) {
-    console.error('KV 데이터 쓰기 오류:', error);
-    throw new Error('데이터 저장에 실패했습니다');
-  }
-}
-
-// GET: 데이터 조회
 export async function GET() {
   try {
-    const data = await readData();
-    console.log('데이터 조회 요청 - 반환할 데이터:', {
-      tripInfo: data.tripInfo?.title,
-      attendees: data.attendees?.length,
-      chatMessages: data.chatMessages?.length,
-      lastUpdated: data.lastUpdated
-    });
-    
-    // 캐시 방지 헤더 추가
-    return new NextResponse(JSON.stringify(data), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
+    return NextResponse.json(tripData);
   } catch (error) {
-    console.error('데이터 조회 오류:', error);
+    console.error('데이터 로드 오류:', error);
     return NextResponse.json(
-      { error: '데이터를 불러오는데 실패했습니다' },
+      { error: '데이터를 불러오는데 실패했습니다.' },
       { status: 500 }
     );
   }
 }
 
-// POST: 데이터 저장
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json() as TripData;
-    console.log('데이터 저장 요청:', {
-      tripInfo: data.tripInfo?.title,
-      attendees: data.attendees?.length,
-      chatMessages: data.chatMessages?.length
-    });
+    const newData = await request.json();
     
-    await writeData(data);
+    // 메모리에 데이터 저장
+    tripData = {
+      ...newData,
+      lastUpdated: new Date().toISOString()
+    };
     
-    const savedTime = new Date().toLocaleString('ko-KR');
-    console.log('KV 데이터 저장 완료:', savedTime);
+    console.log('데이터 저장 성공:', tripData);
     
     return NextResponse.json({ 
       success: true, 
-      message: '데이터가 저장되었습니다',
-      savedAt: savedTime
+      message: '데이터가 성공적으로 저장되었습니다.',
+      data: tripData
     });
   } catch (error) {
     console.error('데이터 저장 오류:', error);
     return NextResponse.json(
-      { error: '데이터 저장에 실패했습니다' },
+      { error: '데이터 저장에 실패했습니다.' },
       { status: 500 }
     );
   }
