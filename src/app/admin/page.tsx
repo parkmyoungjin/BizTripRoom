@@ -54,8 +54,7 @@ export default function AdminPage() {
   const [tripInfo, setTripInfo] = useState(defaultTripInfo);
   const [attendees, setAttendees] = useState(defaultAttendees);
   const [messages, setMessages] = useState(defaultMessages);
-
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "1234"; // 환경변수에서 가져오거나 기본값 사용
+  const [isLoading, setIsLoading] = useState(false);
 
   // 컴포넌트 마운트 시 localStorage에서 데이터 로드
   useEffect(() => {
@@ -76,12 +75,30 @@ export default function AdminPage() {
     }
   }, []);
 
-  const handleLogin = () => {
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-    } else {
-      alert('비밀번호가 틀렸습니다.');
+  const handleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setIsAuthenticated(true);
+      } else {
+        alert('비밀번호가 틀렸습니다.');
+        setPassword('');
+      }
+    } catch (error) {
+      alert('로그인 중 오류가 발생했습니다.');
       setPassword('');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -181,9 +198,10 @@ export default function AdminPage() {
             />
             <button
               onClick={handleLogin}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={isLoading}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300"
             >
-              로그인
+              {isLoading ? '로그인 중...' : '로그인'}
             </button>
           </div>
         </div>
