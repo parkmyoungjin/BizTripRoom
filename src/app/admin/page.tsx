@@ -207,28 +207,35 @@ export default function AdminPage() {
     setIsSaving(false);
   };
 
+  // 로그인 화면
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-          <div className="text-center mb-6">
-            <Lock className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900">관리자 로그인</h1>
-            <p className="text-gray-600 mt-2">비밀번호를 입력하세요</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 w-full max-w-md p-6 sm:p-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <Lock className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mb-3 sm:mb-4" />
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">관리자 로그인</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-2">출장 정보를 수정하려면 로그인해주세요.</p>
           </div>
-          <div className="space-y-4">
-            <input
-              type="password"
-              placeholder="비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg"
-              onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-            />
+          
+          <div className="space-y-4 sm:space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                placeholder="비밀번호를 입력하세요"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isLoading}
+              />
+            </div>
+            
             <button
               onClick={handleLogin}
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300"
+              disabled={isLoading || !password.trim()}
+              className="w-full bg-blue-600 text-white py-2 sm:py-3 px-4 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? '로그인 중...' : '로그인'}
             </button>
@@ -238,239 +245,265 @@ export default function AdminPage() {
     );
   }
 
+  // 관리자 페이지 메인
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">관리자 페이지</h1>
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-            >
-              <Save className="h-4 w-4" />
-              변경사항 저장
-            </button>
+      {/* 모바일 친화적 헤더 */}
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Lock className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">관리자 페이지</h1>
+            </div>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors ${
+                  isSaving 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                <Save className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 inline" />
+                {isSaving ? '저장 중...' : '저장'}
+              </button>
+              <a 
+                href="/" 
+                className="px-3 sm:px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors text-sm sm:text-base font-medium"
+              >
+                메인으로
+              </a>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        {/* 기본 정보 수정 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">출장 기본 정보</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">출장명</label>
-              <input
-                type="text"
-                value={tripInfo.title}
-                onChange={(e) => setTripInfo({...tripInfo, title: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">날짜</label>
-              <input
-                type="text"
-                value={tripInfo.date}
-                onChange={(e) => setTripInfo({...tripInfo, date: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">장소</label>
-              <input
-                type="text"
-                value={tripInfo.location}
-                onChange={(e) => setTripInfo({...tripInfo, location: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
-              <textarea
-                value={tripInfo.description}
-                onChange={(e) => setTripInfo({...tripInfo, description: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                rows={3}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 일정 관리 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">일정 관리</h2>
-            <button
-              onClick={addScheduleItem}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              일정 추가
-            </button>
-          </div>
-          <div className="space-y-3">
-            {tripInfo.schedule.map((item, index) => (
-              <div key={index} className="grid grid-cols-6 gap-4 p-3 bg-gray-50 rounded-lg items-center">
+      {/* 모바일 최적화 메인 컨텐츠 */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+          
+          {/* 출장 기본 정보 편집 */}
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">출장 기본 정보</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">출장 제목</label>
                 <input
                   type="text"
-                  placeholder="시간 (예: 09:00)"
-                  value={item.time}
-                  onChange={(e) => updateScheduleItem(index, 'time', e.target.value)}
-                  className="p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  value={tripInfo.title}
+                  onChange={(e) => setTripInfo({...tripInfo, title: e.target.value})}
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <input
-                  type="text"
-                  placeholder="활동"
-                  value={item.activity}
-                  onChange={(e) => updateScheduleItem(index, 'activity', e.target.value)}
-                  className="col-span-2 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <input
-                  type="text"
-                  placeholder="이모지 (예: 🚌)"
-                  value={item.emoji || ''}
-                  onChange={(e) => updateScheduleItem(index, 'emoji', e.target.value)}
-                  className="p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-center"
-                />
-                <select
-                  value={item.color || '#3B82F6'}
-                  onChange={(e) => updateScheduleItem(index, 'color', e.target.value)}
-                  className="p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="#3B82F6">파란색</option>
-                  <option value="#10B981">초록색</option>
-                  <option value="#8B5CF6">보라색</option>
-                  <option value="#F59E0B">주황색</option>
-                  <option value="#EF4444">빨간색</option>
-                  <option value="#6B7280">회색</option>
-                  <option value="#EAB308">노란색</option>
-                  <option value="#EC4899">핑크색</option>
-                </select>
-                <button
-                  onClick={() => deleteScheduleItem(index)}
-                  className="text-red-600 hover:text-red-800 p-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 참석자 관리 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">참석자 관리</h2>
-            <button
-              onClick={addAttendee}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              참석자 추가
-            </button>
-          </div>
-          <div className="space-y-3">
-            {attendees.map((attendee) => (
-              <div key={attendee.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">날짜</label>
                 <input
                   type="text"
-                  placeholder="이름"
-                  value={attendee.name}
-                  onChange={(e) => updateAttendee(attendee.id, 'name', e.target.value)}
-                  className="w-32 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  value={tripInfo.date}
+                  onChange={(e) => setTripInfo({...tripInfo, date: e.target.value})}
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <input
-                  type="text"
-                  placeholder="직급"
-                  value={attendee.position}
-                  onChange={(e) => updateAttendee(attendee.id, 'position', e.target.value)}
-                  className="w-32 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={attendee.confirmed}
-                    onChange={(e) => updateAttendee(attendee.id, 'confirmed', e.target.checked)}
-                    className="rounded"
-                  />
-                  <span className="text-sm">참석 확정</span>
-                </label>
-                <button
-                  onClick={() => deleteAttendee(attendee.id)}
-                  className="text-red-600 hover:text-red-800 p-2 ml-auto"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 채팅 메시지 관리 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">채팅 메시지 관리</h2>
-            <div className="text-sm text-gray-600">
-              총 {messages.length}개의 메시지
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">장소</label>
+                <input
+                  type="text"
+                  value={tripInfo.location}
+                  onChange={(e) => setTripInfo({...tripInfo, location: e.target.value})}
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div className="md:col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                <textarea
+                  value={tripInfo.description}
+                  onChange={(e) => setTripInfo({...tripInfo, description: e.target.value})}
+                  rows={3}
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                />
+              </div>
             </div>
           </div>
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div key={message.id} className="border border-gray-200 rounded-lg p-4">
-                {/* 질문 */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium text-gray-800">{message.author}</span>
-                      <span className="text-xs text-gray-500">{message.time}</span>
+
+          {/* 일정 편집 */}
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-0">출장 일정</h2>
+              <button
+                onClick={addScheduleItem}
+                className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-green-700 transition-colors"
+              >
+                <Plus className="h-4 w-4 mr-1 sm:mr-2 inline" />
+                일정 추가
+              </button>
+            </div>
+            
+            <div className="space-y-3 sm:space-y-4">
+              {tripInfo.schedule.map((item, index) => (
+                <div key={index} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">시간</label>
+                      <input
+                        type="text"
+                        value={item.time}
+                        onChange={(e) => updateScheduleItem(index, 'time', e.target.value)}
+                        placeholder="09:00"
+                        className="w-full px-2 sm:px-3 py-1 sm:py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
-                    <p className="text-gray-700 bg-gray-50 p-3 rounded">{message.content}</p>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">활동</label>
+                      <input
+                        type="text"
+                        value={item.activity}
+                        onChange={(e) => updateScheduleItem(index, 'activity', e.target.value)}
+                        placeholder="활동명"
+                        className="w-full px-2 sm:px-3 py-1 sm:py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">이모지</label>
+                      <input
+                        type="text"
+                        value={item.emoji}
+                        onChange={(e) => updateScheduleItem(index, 'emoji', e.target.value)}
+                        placeholder="🏨"
+                        className="w-full px-2 sm:px-3 py-1 sm:py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <button
+                        onClick={() => deleteScheduleItem(index)}
+                        className="w-full bg-red-100 text-red-700 px-2 sm:px-3 py-1 sm:py-2 rounded text-sm hover:bg-red-200 transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 inline mr-1" />
+                        삭제
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => deleteMessage(message.id)}
-                    className="text-red-600 hover:text-red-800 p-2 ml-2"
-                    title="메시지 삭제"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
                 </div>
-                
-                {/* 답변들 */}
-                {message.replies.length > 0 && (
-                  <div className="ml-6 space-y-2">
-                    <div className="text-sm font-medium text-gray-600 mb-2">답변 ({message.replies.length}개)</div>
-                    {message.replies.map((reply) => (
-                      <div key={reply.id} className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-blue-600 text-sm">{reply.author}</span>
-                            <span className="text-xs text-gray-500">{reply.time}</span>
-                          </div>
-                          <p className="text-gray-700 bg-blue-50 p-2 rounded text-sm">{reply.content}</p>
-                        </div>
-                        <button
-                          onClick={() => deleteReply(message.id, reply.id)}
-                          className="text-red-600 hover:text-red-800 p-1 ml-2"
-                          title="답변 삭제"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-            {messages.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                등록된 메시지가 없습니다.
-              </div>
-            )}
+              ))}
+            </div>
           </div>
+
+          {/* 참석자 편집 */}
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-0">참석자 관리</h2>
+              <button
+                onClick={addAttendee}
+                className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-green-700 transition-colors"
+              >
+                <Plus className="h-4 w-4 mr-1 sm:mr-2 inline" />
+                참석자 추가
+              </button>
+            </div>
+            
+            <div className="space-y-3 sm:space-y-4">
+              {attendees.map((attendee) => (
+                <div key={attendee.id} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">이름</label>
+                      <input
+                        type="text"
+                        value={attendee.name}
+                        onChange={(e) => updateAttendee(attendee.id, 'name', e.target.value)}
+                        className="w-full px-2 sm:px-3 py-1 sm:py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">직급</label>
+                      <input
+                        type="text"
+                        value={attendee.position}
+                        onChange={(e) => updateAttendee(attendee.id, 'position', e.target.value)}
+                        className="w-full px-2 sm:px-3 py-1 sm:py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">참석 여부</label>
+                      <select
+                        value={attendee.confirmed ? 'true' : 'false'}
+                        onChange={(e) => updateAttendee(attendee.id, 'confirmed', e.target.value === 'true')}
+                        className="w-full px-2 sm:px-3 py-1 sm:py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="true">참석 확정</option>
+                        <option value="false">미확정</option>
+                      </select>
+                    </div>
+                    <div className="flex items-end">
+                      <button
+                        onClick={() => deleteAttendee(attendee.id)}
+                        className="w-full bg-red-100 text-red-700 px-2 sm:px-3 py-1 sm:py-2 rounded text-sm hover:bg-red-200 transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 inline mr-1" />
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 채팅 메시지 관리 */}
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">질문 & 답변 관리</h2>
+            
+            <div className="space-y-4 sm:space-y-6">
+              {messages.map((message) => (
+                <div key={message.id} className="border border-gray-200 rounded-lg p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3">
+                    <div className="flex-1 mb-2 sm:mb-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="font-medium text-sm text-blue-600">{message.author}</span>
+                        <span className="text-xs text-gray-500">{message.time}</span>
+                      </div>
+                      <p className="text-sm sm:text-base text-gray-800">{message.content}</p>
+                    </div>
+                    <button
+                      onClick={() => deleteMessage(message.id)}
+                      className="bg-red-100 text-red-700 px-2 sm:px-3 py-1 rounded text-xs sm:text-sm hover:bg-red-200 transition-colors self-start"
+                    >
+                      <Trash2 className="h-3 w-3 inline mr-1" />
+                      질문 삭제
+                    </button>
+                  </div>
+                  
+                  {/* 답변 목록 */}
+                  {message.replies.length > 0 && (
+                    <div className="mt-3 space-y-2 border-l-2 border-blue-200 pl-3 sm:pl-4">
+                      {message.replies.map((reply) => (
+                        <div key={reply.id} className="bg-white p-2 sm:p-3 rounded border">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex-1 mb-2 sm:mb-0">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <span className="font-medium text-xs sm:text-sm text-gray-700">{reply.author}</span>
+                                <span className="text-xs text-gray-500">{reply.time}</span>
+                              </div>
+                              <p className="text-xs sm:text-sm text-gray-600">{reply.content}</p>
+                            </div>
+                            <button
+                              onClick={() => deleteReply(message.id, reply.id)}
+                              className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs hover:bg-red-200 transition-colors self-start"
+                            >
+                              <Trash2 className="h-3 w-3 inline mr-1" />
+                              삭제
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </main>
     </div>

@@ -264,288 +264,254 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Plane className="h-8 w-8 text-blue-600" />
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">{tripInfo.title}</h1>
-                <p className="text-gray-600 mt-2">출장 정보 및 소통 공간</p>
-              </div>
+      {/* 모바일 친화적 헤더 */}
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Plane className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">출장 정보</h1>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={handleForceRefresh}
                 disabled={isRefreshing}
-                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                className={`p-2 rounded-lg transition-colors ${
                   isRefreshing 
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                    : 'bg-blue-100 hover:bg-blue-200 text-blue-700'
+                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
                 }`}
-                title="데이터 강제 새로고침"
+                title="새로고침"
               >
-                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                {isRefreshing ? '새로고침 중...' : '새로고침'}
+                <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
               </button>
               <Link 
-                href="/admin"
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                href="/admin" 
+                className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors"
+                title="관리자"
               >
-                <Settings className="h-4 w-4" />
-                관리자
+                <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
               </Link>
             </div>
           </div>
-          {lastUpdated && (
-            <div className="mt-2 text-xs text-gray-500">
-              마지막 업데이트: {new Date(lastUpdated).toLocaleString('ko-KR')}
-            </div>
-          )}
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-        {/* 출장 기본 정보 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">출장 정보</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-3">
-              <Calendar className="h-5 w-5 text-blue-600" />
-              <span className="text-gray-700">날짜: {tripInfo.date}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <MapPin className="h-5 w-5 text-blue-600" />
-              <span className="text-gray-700">장소: {tripInfo.location}</span>
-            </div>
-          </div>
-          <p className="mt-4 text-gray-600">{tripInfo.description}</p>
-        </div>
-
-        {/* 일정표 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">일정표</h2>
+      {/* 모바일 친화적 메인 컨텐츠 */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           
-          {/* 가로 타임라인 형태의 일정 */}
-          <div className="overflow-x-auto pb-4">
-            <div className="flex gap-4 min-w-max">
-              {(tripInfo.schedule || [])
-                .sort((a, b) => {
-                  const getMinutes = (time: string) => {
-                    const [h, m] = time.split(':').map(Number);
-                    return h * 60 + m;
-                  };
-                  return getMinutes(a.time) - getMinutes(b.time);
-                })
-                .map((item, index, array) => (
-                  <div key={index} className="flex flex-col items-center min-w-[140px]">
-                    {/* 시간 */}
-                    <div className="text-sm font-bold text-gray-800 mb-2">{item.time}</div>
-                    
-                    {/* 연결선과 원 */}
-                    <div className="flex items-center w-full">
-                      {/* 이전 연결선 */}
-                      {index > 0 && (
-                        <div className="flex-1 h-0.5 bg-gray-300"></div>
-                      )}
-                      
-                      {/* 중앙 원 */}
-                      <div 
-                        className="w-6 h-6 rounded-full border-4 border-white shadow-md flex-shrink-0 mx-2"
-                        style={{ backgroundColor: item.color || '#6B7280' }}
-                      ></div>
-                      
-                      {/* 다음 연결선 */}
-                      {index < array.length - 1 && (
-                        <div className="flex-1 h-0.5 bg-gray-300"></div>
-                      )}
-                    </div>
-                    
-                    {/* 활동 카드 */}
-                    <div className="mt-3 text-center">
-                      <div className="text-2xl mb-2">{item.emoji || '📅'}</div>
-                      <div className="bg-gray-50 rounded-lg p-3 min-h-[80px] flex flex-col justify-center">
-                        <div className="font-medium text-gray-800 text-sm leading-tight mb-2">
-                          {item.activity}
-                        </div>
-                        <div 
-                          className="px-2 py-1 rounded-full text-white text-xs font-medium"
-                          style={{ backgroundColor: item.color || '#6B7280' }}
-                        >
-                          {item.time}
-                        </div>
-                      </div>
-                    </div>
+          {/* 출장 정보 카드 - 모바일 우선 */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white flex items-center">
+                  <MapPin className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
+                  {tripInfo.title}
+                </h2>
+                <div className="mt-2 sm:mt-3 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-blue-100">
+                  <div className="flex items-center">
+                    <Calendar className="mr-1 sm:mr-2 h-4 w-4" />
+                    <span className="text-sm sm:text-base">{tripInfo.date}</span>
                   </div>
-                ))}
-            </div>
-          </div>
-          
-          {/* 스크롤 힌트 (모바일용) */}
-          <div className="text-center text-xs text-gray-500 mt-2 md:hidden">
-            ← 좌우로 스크롤하여 전체 일정을 확인하세요 →
-          </div>
-          
-          {/* 간단한 범례 */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">📋 일정 요약</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-              <div>총 {(tripInfo.schedule || []).length}개 활동</div>
-              <div>
-                {(tripInfo.schedule || []).length > 0 && (
-                  <>
-                    {(tripInfo.schedule || [])[0]?.time} ~ {(tripInfo.schedule || [])[(tripInfo.schedule || []).length - 1]?.time}
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 참석자 목록 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">참석자 목록</h2>
-          <div className="grid md:grid-cols-2 gap-3">
-            {attendees.map((attendee) => (
-              <div key={attendee.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Users className="h-4 w-4 text-blue-600" />
-                <span className="font-medium">{attendee.name}</span>
-                <span className="text-gray-600">({attendee.position})</span>
-                <span className={`ml-auto px-2 py-1 rounded-full text-xs font-medium ${
-                  attendee.confirmed 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {attendee.confirmed ? '참석 확정' : '미확정'}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 채팅 섹션 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
-            <MessageCircle className="h-6 w-6 text-blue-600" />
-            질문 및 소통
-          </h2>
-          
-          {/* 채팅 메시지 영역 */}
-          <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-            {messages.map((message) => (
-              <div key={message.id} className="space-y-2">
-                {/* 질문 (왼쪽 말풍선) */}
-                <div className="flex justify-start">
-                  <div 
-                    className="bg-gray-100 rounded-lg p-3 max-w-xs cursor-pointer hover:bg-gray-200 transition-colors"
-                    onClick={() => handleQuestionClick(message.id)}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-gray-800 text-sm">{message.author}</span>
-                      <span className="text-xs text-gray-500">{message.time}</span>
-                    </div>
-                    <p className="text-gray-700">{message.content}</p>
-                    <div className="text-xs text-blue-600 mt-1">답변하려면 클릭하세요</div>
+                  <div className="flex items-center">
+                    <MapPin className="mr-1 sm:mr-2 h-4 w-4" />
+                    <span className="text-sm sm:text-base">{tripInfo.location}</span>
                   </div>
                 </div>
+              </div>
+              
+              <div className="p-4 sm:p-6">
+                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">{tripInfo.description}</p>
                 
-                {/* 답변들 (오른쪽 말풍선) */}
-                {message.replies.map((reply) => (
-                  <div key={reply.id} className="flex justify-end">
-                    <div className="bg-blue-500 text-white rounded-lg p-3 max-w-xs">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm">{reply.author}</span>
-                        <span className="text-xs text-blue-100">{reply.time}</span>
+                {/* 일정 - 모바일 최적화 */}
+                <div className="space-y-3 sm:space-y-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                    <Calendar className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    출장 일정
+                  </h3>
+                  <div className="space-y-2 sm:space-y-3">
+                    {tripInfo.schedule.map((item, index) => (
+                      <div 
+                        key={index} 
+                        className="flex items-center p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100"
+                      >
+                        <div className="flex-shrink-0 w-16 sm:w-20 text-xs sm:text-sm font-medium text-gray-600">
+                          {item.time}
+                        </div>
+                        <div className="flex-shrink-0 text-lg sm:text-xl mr-2 sm:mr-3">
+                          {item.emoji}
+                        </div>
+                        <div className="flex-1 text-sm sm:text-base text-gray-900 font-medium">
+                          {item.activity}
+                        </div>
                       </div>
-                      <p>{reply.content}</p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 참석자 목록 - 모바일 최적화 */}
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+                <Users className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                참석자 현황
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                {attendees.map((attendee) => (
+                  <div 
+                    key={attendee.id} 
+                    className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100"
+                  >
+                    <div className="flex items-center space-x-2 sm:space-x-3">
+                      <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
+                        attendee.confirmed ? 'bg-green-500' : 'bg-yellow-500'
+                      }`}></div>
+                      <div>
+                        <div className="font-medium text-sm sm:text-base text-gray-900">{attendee.name}</div>
+                        <div className="text-xs sm:text-sm text-gray-500">{attendee.position}</div>
+                      </div>
                     </div>
+                    <span className={`text-xs sm:text-sm px-2 py-1 rounded-full font-medium ${
+                      attendee.confirmed 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {attendee.confirmed ? '참석' : '미확인'}
+                    </span>
                   </div>
                 ))}
               </div>
-            ))}
+            </div>
           </div>
 
-          {/* 새 질문 작성 */}
-          <div className="border-t pt-4">
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="이름을 입력하세요"
-                value={authorName}
-                onChange={(e) => setAuthorName(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <textarea
-                placeholder="내용을 입력하세요..."
-                value={newQuestion}
-                onChange={(e) => setNewQuestion(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg h-24 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                onClick={addQuestion}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                ↑
-              </button>
+          {/* 채팅 영역 - 모바일 최적화 */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 h-full flex flex-col">
+              <div className="p-4 sm:p-6 border-b border-gray-200">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                  <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                  질문 & 답변
+                </h3>
+              </div>
+              
+              {/* 메시지 목록 - 모바일 스크롤 최적화 */}
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto max-h-64 sm:max-h-96 lg:max-h-none">
+                <div className="space-y-3 sm:space-y-4">
+                  {messages.map((message) => (
+                    <div key={message.id} className="border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-gray-50">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="font-medium text-xs sm:text-sm text-blue-600">{message.author}</span>
+                        <span className="text-xs text-gray-500">{message.time}</span>
+                      </div>
+                      <p className="text-sm sm:text-base text-gray-800 mb-2 sm:mb-3">{message.content}</p>
+                      
+                      {/* 답변 목록 */}
+                      {message.replies.length > 0 && (
+                        <div className="space-y-2 border-l-2 border-blue-200 pl-3 sm:pl-4">
+                          {message.replies.map((reply) => (
+                            <div key={reply.id} className="bg-white p-2 sm:p-3 rounded-md sm:rounded-lg">
+                              <div className="flex justify-between items-start mb-1">
+                                <span className="font-medium text-xs sm:text-sm text-gray-700">{reply.author}</span>
+                                <span className="text-xs text-gray-500">{reply.time}</span>
+                              </div>
+                              <p className="text-xs sm:text-sm text-gray-600">{reply.content}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <button 
+                        onClick={() => handleQuestionClick(message.id)}
+                        className="mt-2 text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        답변하기
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* 질문 입력 폼 - 모바일 최적화 */}
+              <div className="p-4 sm:p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl sm:rounded-b-2xl">
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={authorName}
+                    onChange={(e) => setAuthorName(e.target.value)}
+                    placeholder="이름을 입력하세요"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <textarea
+                    value={newQuestion}
+                    onChange={(e) => setNewQuestion(e.target.value)}
+                    placeholder="질문을 입력하세요..."
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    rows={3}
+                  />
+                  <button
+                    onClick={addQuestion}
+                    disabled={!newQuestion.trim() || !authorName.trim()}
+                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    질문하기
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* 답변 모달 */}
+      {/* 모바일 답변 모달 */}
       {showReplyModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold mb-4">답변 작성</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">답변자 이름</label>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md sm:w-full max-h-96 sm:max-h-80">
+            <div className="p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">답변 작성</h3>
+              <div className="space-y-3">
                 <input
                   type="text"
-                  placeholder="이름을 입력하세요"
                   value={authorName}
                   onChange={(e) => setAuthorName(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="이름을 입력하세요"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">답변 내용</label>
                 <textarea
-                  placeholder="답변을 입력하세요..."
                   value={newReply}
                   onChange={(e) => setNewReply(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg h-24 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="답변을 입력하세요..."
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={3}
                 />
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => addReply(replyTo || 0)}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  답변 추가
-                </button>
-                <button
-                  onClick={closeReplyModal}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-                >
-                  취소
-                </button>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={closeReplyModal}
+                    className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-gray-300 transition-colors"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={() => replyTo && addReply(replyTo)}
+                    disabled={!newReply.trim() || !authorName.trim()}
+                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    답변하기
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* 푸터 */}
-      <footer className="bg-gray-800 text-white py-6 mt-12">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <p>&copy; 2025 출장 정보 공유 시스템</p>
-          {buildTimestamp && (
-            <p className="text-xs text-gray-400 mt-2">Build: {buildTimestamp}</p>
-          )}
+      {/* 상태 표시 */}
+      {lastUpdated && (
+        <div className="fixed bottom-4 right-4 bg-gray-800 text-white text-xs px-3 py-1 rounded-full opacity-75">
+          마지막 업데이트: {new Date(lastUpdated).toLocaleTimeString()}
         </div>
-      </footer>
+      )}
     </div>
   );
 }
