@@ -490,13 +490,13 @@ export default function Home() {
                   value={authorName}
                   onChange={(e) => setAuthorName(e.target.value)}
                   placeholder="이름을 입력하세요"
-                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-300"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 placeholder-gray-300"
                 />
                 <textarea
                   value={newReply}
                   onChange={(e) => setNewReply(e.target.value)}
                   placeholder="답변을 입력하세요..."
-                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none placeholder-gray-300"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-500 placeholder-gray-300"
                   rows={3}
                 />
                 <div className="flex space-x-3">
