@@ -66,14 +66,8 @@ export default function Home() {
   const [replyTo, setReplyTo] = useState<number | null>(null);
   const [authorName, setAuthorName] = useState('');
   const [showReplyModal, setShowReplyModal] = useState(false);
-  const [buildTimestamp, setBuildTimestamp] = useState<string>('');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
-
-  // 클라이언트에서만 타임스탬프 설정 (hydration 오류 방지)
-  useEffect(() => {
-    setBuildTimestamp(Date.now().toString());
-  }, []);
 
   // 서버에서 데이터 로드 (캐시 방지 개선)
   const loadDataFromServer = async (forceRefresh = false) => {

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lock, Save, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
 // 기본 메시지 데이터
 const defaultMessages = [
@@ -269,12 +270,12 @@ export default function AdminPage() {
                 <Save className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 inline" />
                 {isSaving ? '저장 중...' : '저장'}
               </button>
-              <a 
+              <Link 
                 href="/" 
                 className="px-3 sm:px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors text-sm sm:text-base font-medium"
               >
                 메인으로
-              </a>
+              </Link>
             </div>
           </div>
         </div>
