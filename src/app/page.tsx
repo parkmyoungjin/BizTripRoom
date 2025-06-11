@@ -69,16 +69,19 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  // 서버에서 데이터 로드 (캐시 방지 개선)
+  // 서버에서 데이터 로드 (효율적인 실시간 업데이트)
   const loadDataFromServer = async (forceRefresh = false) => {
     if (forceRefresh) {
       setIsRefreshing(true);
     }
     
     try {
-      // 캐시 방지를 위한 타임스탬프 추가
-      const timestamp = new Date().getTime();
-      const response = await fetch(`/api/data?t=${timestamp}`, {
+      // 마지막 업데이트 시간을 포함하여 변경사항만 확인
+      const url = lastUpdated && !forceRefresh 
+        ? `/api/data?lastUpdate=${encodeURIComponent(lastUpdated)}&t=${Date.now()}`
+        : `/api/data?t=${Date.now()}`;
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -89,11 +92,28 @@ export default function Home() {
       
       if (response.ok) {
         const data = await response.json();
+        
+        // 변경사항이 없으면 업데이트하지 않음
+        if (data.noChanges) {
+          console.log('변경사항 없음 - 업데이트 건너뜀');
+          return;
+        }
+        
         console.log('서버에서 받은 데이터:', data); // 디버깅용
-        setTripInfo(data.tripInfo || defaultTripInfo);
-        setAttendees(data.attendees || defaultAttendees);
-        setMessages(data.chatMessages || defaultMessages);
-        setLastUpdated(data.lastUpdated || new Date().toISOString());
+        
+        // 실제 데이터가 있는 경우에만 상태 업데이트
+        if (data.tripInfo) {
+          setTripInfo(data.tripInfo);
+        }
+        if (data.attendees) {
+          setAttendees(data.attendees);
+        }
+        if (data.chatMessages) {
+          setMessages(data.chatMessages);
+        }
+        if (data.lastUpdated) {
+          setLastUpdated(data.lastUpdated);
+        }
         
         if (forceRefresh) {
           console.log('강제 새로고침 완료');
@@ -141,14 +161,14 @@ export default function Home() {
     loadDataFromServer();
   }, []);
 
-  // 정기적으로 데이터 새로고침 (5초마다로 단축)
+  // 정기적으로 데이터 새로고침 (3초마다로 더 빠르게)
   useEffect(() => {
     const interval = setInterval(() => {
       loadDataFromServer();
-    }, 5000); // 10초에서 5초로 단축
+    }, 3000); // 5초에서 3초로 단축하여 더 빠른 실시간 업데이트
     
     return () => clearInterval(interval);
-  }, []);
+  }, [lastUpdated]); // lastUpdated를 의존성에 추가하여 업데이트 시점 최적화
 
   // 페이지 포커스/가시성 변경 시 강제 새로고침
   useEffect(() => {

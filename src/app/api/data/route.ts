@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, readFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { kv } from '@vercel/kv';
 
 // 기본 데이터
 const defaultTripData = {
@@ -47,113 +46,115 @@ const defaultTripData = {
   lastUpdated: new Date().toISOString()
 };
 
-// 메모리 캐시 (빠른 액세스용)
-let memoryCache: typeof defaultTripData | null = null;
-let cacheTimestamp = 0;
-const CACHE_DURATION = 5000; // 5초 캐시
+// KV 키 정의
+const TRIP_DATA_KEY = 'trip-data';
+const LAST_UPDATE_KEY = 'last-update';
 
-// 파일 경로 설정
-const getDataFilePath = () => {
-  if (process.env.VERCEL) {
-    // Vercel 환경에서는 /tmp 디렉토리 사용
-    return '/tmp/trip-data.json';
-  } else {
-    // 로컬 환경에서는 data 폴더 사용
-    return path.join(process.cwd(), 'data', 'trip-data.json');
-  }
-};
-
-// 데이터 파일에서 읽기
-async function readDataFromFile(): Promise<typeof defaultTripData> {
+// Vercel KV에서 데이터 읽기
+async function readDataFromKV(): Promise<typeof defaultTripData> {
   try {
-    const filePath = getDataFilePath();
-    
-    // 로컬 환경에서만 디렉토리 생성
-    if (!process.env.VERCEL) {
-      const dir = path.dirname(filePath);
-      try {
-        await mkdir(dir, { recursive: true });
-      } catch {
-        // 디렉토리가 이미 있으면 무시
-      }
+    // Vercel KV가 설정되어 있는지 확인
+    if (!process.env.KV_REST_API_URL) {
+      console.log('Vercel KV가 설정되지 않았습니다. 기본 데이터를 사용합니다.');
+      return { ...defaultTripData };
     }
+
+    const data = await kv.get<typeof defaultTripData>(TRIP_DATA_KEY);
     
-    const data = await readFile(filePath, 'utf-8');
-    const parsedData = JSON.parse(data);
+    if (!data) {
+      console.log('KV에 저장된 데이터가 없습니다. 기본 데이터를 반환합니다.');
+      // 기본 데이터를 KV에 저장
+      await writeDataToKV(defaultTripData);
+      return { ...defaultTripData };
+    }
     
     // 데이터 구조 검증 및 기본값 병합
     return {
-      tripInfo: parsedData.tripInfo || defaultTripData.tripInfo,
-      attendees: parsedData.attendees || defaultTripData.attendees,
-      chatMessages: parsedData.chatMessages || defaultTripData.chatMessages,
-      lastUpdated: parsedData.lastUpdated || new Date().toISOString()
+      tripInfo: data.tripInfo || defaultTripData.tripInfo,
+      attendees: data.attendees || defaultTripData.attendees,
+      chatMessages: data.chatMessages || defaultTripData.chatMessages,
+      lastUpdated: data.lastUpdated || new Date().toISOString()
     };
   } catch (error) {
-    console.log('파일에서 데이터를 읽을 수 없어 기본 데이터를 사용합니다:', error);
+    console.error('KV에서 데이터를 읽는 중 오류 발생:', error);
     return { ...defaultTripData };
   }
 }
 
-// 데이터 파일에 쓰기
-async function writeDataToFile(data: typeof defaultTripData): Promise<boolean> {
+// Vercel KV에 데이터 쓰기
+async function writeDataToKV(data: typeof defaultTripData): Promise<boolean> {
   try {
-    const filePath = getDataFilePath();
-    
-    // 로컬 환경에서만 디렉토리 생성
-    if (!process.env.VERCEL) {
-      const dir = path.dirname(filePath);
-      try {
-        await mkdir(dir, { recursive: true });
-      } catch {
-        // 디렉토리가 이미 있으면 무시
-      }
+    // Vercel KV가 설정되어 있는지 확인
+    if (!process.env.KV_REST_API_URL) {
+      console.error('Vercel KV가 설정되지 않았습니다.');
+      return false;
     }
-    
+
     const dataToWrite = {
       ...data,
       lastUpdated: new Date().toISOString()
     };
     
-    await writeFile(filePath, JSON.stringify(dataToWrite, null, 2), 'utf-8');
+    // 데이터와 업데이트 시간을 모두 저장
+    await Promise.all([
+      kv.set(TRIP_DATA_KEY, dataToWrite),
+      kv.set(LAST_UPDATE_KEY, dataToWrite.lastUpdated)
+    ]);
     
-    // 캐시 업데이트
-    memoryCache = dataToWrite;
-    cacheTimestamp = Date.now();
-    
-    console.log('데이터 파일 저장 성공:', filePath);
+    console.log('KV에 데이터 저장 성공');
     return true;
   } catch (error) {
-    console.error('데이터 파일 저장 실패:', error);
+    console.error('KV에 데이터 저장 실패:', error);
     return false;
   }
 }
 
-// 캐시된 데이터 가져오기
-async function getCachedData(): Promise<typeof defaultTripData> {
-  const now = Date.now();
-  
-  // 캐시가 유효한 경우
-  if (memoryCache && (now - cacheTimestamp) < CACHE_DURATION) {
-    return memoryCache;
+// 마지막 업데이트 시간 확인
+async function getLastUpdateTime(): Promise<string | null> {
+  try {
+    if (!process.env.KV_REST_API_URL) {
+      return null;
+    }
+    
+    const lastUpdate = await kv.get<string>(LAST_UPDATE_KEY);
+    return lastUpdate;
+  } catch (error) {
+    console.error('마지막 업데이트 시간 조회 실패:', error);
+    return null;
   }
-  
-  // 캐시가 없거나 만료된 경우 파일에서 읽기
-  const data = await readDataFromFile();
-  memoryCache = data;
-  cacheTimestamp = now;
-  
-  return data;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const data = await getCachedData();
+    const { searchParams } = new URL(request.url);
+    const clientLastUpdate = searchParams.get('lastUpdate');
+    
+    // 클라이언트가 마지막 업데이트 시간을 보냈다면, 변경사항이 있는지 확인
+    if (clientLastUpdate) {
+      const serverLastUpdate = await getLastUpdateTime();
+      
+      if (serverLastUpdate && serverLastUpdate === clientLastUpdate) {
+        // 변경사항이 없음
+        return NextResponse.json({ 
+          noChanges: true 
+        }, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          },
+        });
+      }
+    }
+    
+    const data = await readDataFromKV();
     
     return NextResponse.json(data, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',
+        'X-Last-Update': data.lastUpdated,
       },
     });
   } catch (error) {
@@ -177,7 +178,7 @@ export async function POST(request: NextRequest) {
       lastUpdated: new Date().toISOString()
     };
     
-    const success = await writeDataToFile(dataToSave);
+    const success = await writeDataToKV(dataToSave);
     
     if (success) {
       return NextResponse.json({ 

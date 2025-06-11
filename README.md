@@ -24,7 +24,24 @@
 
 ## 📦 설치 및 실행
 
-### 개발 환경에서 실행
+### 1. 환경변수 설정
+
+개발 환경에서 Vercel KV를 사용하려면 환경변수를 설정해야 합니다:
+
+```bash
+# .env.local 파일 생성
+cp .env.example .env.local
+```
+
+`.env.local` 파일에 다음 내용을 추가:
+```bash
+# Vercel KV 환경변수 (Vercel 대시보드에서 복사)
+KV_REST_API_URL=your-kv-rest-api-url
+KV_REST_API_TOKEN=your-kv-rest-api-token
+KV_REST_API_READ_ONLY_TOKEN=your-kv-read-only-token
+```
+
+### 2. 개발 환경에서 실행
 
 ```bash
 # 의존성 설치
