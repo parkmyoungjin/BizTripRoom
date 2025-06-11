@@ -55,7 +55,7 @@ export default function AdminPage() {
   const [attendees, setAttendees] = useState(defaultAttendees);
   const [messages, setMessages] = useState(defaultMessages);
 
-  const ADMIN_PASSWORD = "1234"; // 실제 운영에서는 환경변수나 데이터베이스에 저장
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "1234"; // 환경변수에서 가져오거나 기본값 사용
 
   // 컴포넌트 마운트 시 localStorage에서 데이터 로드
   useEffect(() => {
