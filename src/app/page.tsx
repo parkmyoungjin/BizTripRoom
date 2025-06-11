@@ -219,7 +219,7 @@ export default function Home() {
       setNewQuestion('');
       setAuthorName('');
     } else {
-      alert('질문 저장에 실패했습니다.');
+      alert('저장에 실패했습니다.');
     }
   };
 
@@ -406,7 +406,7 @@ export default function Home() {
               <div className="p-4 sm:p-6 border-b border-gray-700">
                 <h3 className="text-base sm:text-lg font-semibold text-white flex items-center">
                   <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-                  질문 & 답변
+                  소통 공간
                 </h3>
               </div>
               
@@ -460,7 +460,7 @@ export default function Home() {
                   <textarea
                     value={newQuestion}
                     onChange={(e) => setNewQuestion(e.target.value)}
-                    placeholder="질문을 입력하세요..."
+                    placeholder="내용을 입력하세요..."
                     className="w-full px-3 py-2 text-sm sm:text-base bg-gray-600 border border-gray-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none placeholder-gray-300"
                     rows={3}
                   />
@@ -469,7 +469,7 @@ export default function Home() {
                     disabled={!newQuestion.trim() || !authorName.trim()}
                     className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                   >
-                    질문하기
+                    입력하기
                   </button>
                 </div>
               </div>
