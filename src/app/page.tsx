@@ -218,6 +218,7 @@ export default function Home() {
       setMessages(updatedMessages);
       setNewQuestion('');
       setAuthorName('');
+      setShowReplyModal(false);
     } else {
       alert('저장에 실패했습니다.');
     }
