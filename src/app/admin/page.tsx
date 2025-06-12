@@ -290,7 +290,7 @@ export default function AdminPage() {
             <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">출장 기본 정보</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">출장 제목</label>
+                <label className="block text-sm font-medium text-white mb-2">출장 제목</label>
                 <input
                   type="text"
                   value={tripInfo.title}
@@ -299,7 +299,7 @@ export default function AdminPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">날짜</label>
+                <label className="block text-sm font-medium text-white mb-2">날짜</label>
                 <input
                   type="text"
                   value={tripInfo.date}
@@ -308,7 +308,7 @@ export default function AdminPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">장소</label>
+                <label className="block text-sm font-medium text-white mb-2">장소</label>
                 <input
                   type="text"
                   value={tripInfo.location}
@@ -317,7 +317,7 @@ export default function AdminPage() {
                 />
               </div>
               <div className="md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                <label className="block text-sm font-medium text-white mb-2">설명</label>
                 <textarea
                   value={tripInfo.description}
                   onChange={(e) => setTripInfo({...tripInfo, description: e.target.value})}
@@ -329,9 +329,9 @@ export default function AdminPage() {
           </div>
 
           {/* 일정 편집 */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+          <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-0">출장 일정</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-0">출장 일정</h2>
               <button
                 onClick={addScheduleItem}
                 className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-green-700 transition-colors"
@@ -343,10 +343,10 @@ export default function AdminPage() {
             
             <div className="space-y-3 sm:space-y-4">
               {tripInfo.schedule.map((item, index) => (
-                <div key={index} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <div key={index} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-800">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">시간</label>
+                      <label className="block text-xs sm:text-sm font-medium text-white mb-1">시간</label>
                       <input
                         type="text"
                         value={item.time}
@@ -356,7 +356,7 @@ export default function AdminPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">활동</label>
+                      <label className="block text-xs sm:text-sm font-medium text-white mb-1">활동</label>
                       <input
                         type="text"
                         value={item.activity}
@@ -366,7 +366,7 @@ export default function AdminPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">이모지</label>
+                      <label className="block text-xs sm:text-sm font-medium text-whtie mb-1">이모지</label>
                       <input
                         type="text"
                         value={item.emoji}
@@ -391,9 +391,9 @@ export default function AdminPage() {
           </div>
 
           {/* 참석자 편집 */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+          <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-0">참석자 관리</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-whtie mb-2 sm:mb-0">참석자 관리</h2>
               <button
                 onClick={addAttendee}
                 className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-green-700 transition-colors"
@@ -405,10 +405,10 @@ export default function AdminPage() {
             
             <div className="space-y-3 sm:space-y-4">
               {attendees.map((attendee) => (
-                <div key={attendee.id} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <div key={attendee.id} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-800">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">이름</label>
+                      <label className="block text-xs sm:text-sm font-medium text-whtie mb-1">이름</label>
                       <input
                         type="text"
                         value={attendee.name}
@@ -417,7 +417,7 @@ export default function AdminPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">직급</label>
+                      <label className="block text-xs sm:text-sm font-medium text-white mb-1">직급</label>
                       <input
                         type="text"
                         value={attendee.position}
@@ -426,7 +426,7 @@ export default function AdminPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">참석 여부</label>
+                      <label className="block text-xs sm:text-sm font-medium text-white mb-1">참석 여부</label>
                       <select
                         value={attendee.confirmed ? 'true' : 'false'}
                         onChange={(e) => updateAttendee(attendee.id, 'confirmed', e.target.value === 'true')}
@@ -452,8 +452,8 @@ export default function AdminPage() {
           </div>
 
           {/* 채팅 메시지 관리 */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">질문 & 답변 관리</h2>
+          <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">질문 & 답변 관리</h2>
             
             <div className="space-y-4 sm:space-y-6">
               {messages.map((message) => (
@@ -461,10 +461,10 @@ export default function AdminPage() {
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3">
                     <div className="flex-1 mb-2 sm:mb-0">
                       <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-medium text-sm text-blue-600">{message.author}</span>
-                        <span className="text-xs text-gray-500">{message.time}</span>
+                        <span className="font-medium text-sm text-blue-400">{message.author}</span>
+                        <span className="text-xs text-white">{message.time}</span>
                       </div>
-                      <p className="text-sm sm:text-base text-gray-800">{message.content}</p>
+                      <p className="text-sm sm:text-base text-white">{message.content}</p>
                     </div>
                     <button
                       onClick={() => deleteMessage(message.id)}
@@ -479,14 +479,14 @@ export default function AdminPage() {
                   {message.replies.length > 0 && (
                     <div className="mt-3 space-y-2 border-l-2 border-blue-200 pl-3 sm:pl-4">
                       {message.replies.map((reply) => (
-                        <div key={reply.id} className="bg-white p-2 sm:p-3 rounded border">
+                        <div key={reply.id} className="bg-gray-800 p-2 sm:p-3 rounded border">
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
                             <div className="flex-1 mb-2 sm:mb-0">
                               <div className="flex items-center space-x-2 mb-1">
-                                <span className="font-medium text-xs sm:text-sm text-gray-700">{reply.author}</span>
-                                <span className="text-xs text-gray-500">{reply.time}</span>
+                                <span className="font-medium text-xs sm:text-sm text-whtie">{reply.author}</span>
+                                <span className="text-xs text-whtie">{reply.time}</span>
                               </div>
-                              <p className="text-xs sm:text-sm text-gray-600">{reply.content}</p>
+                              <p className="text-xs sm:text-sm text-white">{reply.content}</p>
                             </div>
                             <button
                               onClick={() => deleteReply(message.id, reply.id)}
@@ -509,4 +509,4 @@ export default function AdminPage() {
       </main>
     </div>
   );
-} 
+}
