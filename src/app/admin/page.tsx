@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Lock, Save, Plus, Trash2 } from 'lucide-react';
+import { Lock, Save, Plus, Trash2, Train } from 'lucide-react';
 import Link from 'next/link';
 
 // 기본 메시지 데이터
@@ -57,11 +57,14 @@ export default function AdminPage() {
   const [messages, setMessages] = useState(defaultMessages);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [trainImages, setTrainImages] = useState<{departure: string[], return: string[]}>({ departure: [], return: [] });
 
   // 컴포넌트 마운트 시 서버에서 데이터 로드
   useEffect(() => {
-    const loadDataFromServer = async () => {
+    const loadAllData = async () => {
       try {
+        // 기존 데이터 로드
         const response = await fetch('/api/data');
         if (response.ok) {
           const data = await response.json();
@@ -69,13 +72,20 @@ export default function AdminPage() {
           setAttendees(data.attendees || defaultAttendees);
           setMessages(data.chatMessages || defaultMessages);
         }
+
+        // 기차표 이미지 목록 로드
+        const imagesResponse = await fetch('/api/upload-images');
+        if (imagesResponse.ok) {
+          const imagesData = await imagesResponse.json();
+          setTrainImages(imagesData);
+        }
       } catch (error: unknown) {
         console.error('데이터 로드 오류:', error);
         // 오류 시 기본값 사용
       }
     };
 
-    loadDataFromServer();
+    loadAllData();
   }, []);
 
   const handleLogin = async () => {
@@ -163,6 +173,47 @@ export default function AdminPage() {
       return message;
     });
     setMessages(updatedMessages);
+  };
+
+  // 이미지 업로드 핸들러
+  const handleImageUpload = async (type: 'departure' | 'return', files: FileList) => {
+    if (!files.length) return;
+
+    setUploadingImages(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('type', type);
+      
+      for (let i = 0; i < files.length; i++) {
+        formData.append('images', files[i]);
+      }
+
+      const response = await fetch('/api/upload-images', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(result.message);
+        
+        // 이미지 목록 새로고침
+        const imagesResponse = await fetch('/api/upload-images');
+        if (imagesResponse.ok) {
+          const imagesData = await imagesResponse.json();
+          setTrainImages(imagesData);
+        }
+      } else {
+        alert('업로드 실패: ' + result.error);
+      }
+    } catch (error) {
+      console.error('업로드 오류:', error);
+      alert('업로드 중 오류가 발생했습니다.');
+    }
+    
+    setUploadingImages(false);
   };
 
   // 저장 처리
@@ -451,6 +502,110 @@ export default function AdminPage() {
             </div>
           </div>
 
+          {/* 기차표 이미지 관리 섹션 */}
+          <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-700 p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6 flex items-center">
+              <Train className="mr-2 h-5 w-5 text-blue-400" />
+              기차표 이미지 관리
+            </h2>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              
+              {/* 출발 기차표 업로드 */}
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-3 sm:p-4 rounded-lg">
+                  <h3 className="text-base sm:text-lg font-semibold">출발 기차표</h3>
+                  <p className="text-sm opacity-90">현재 {trainImages.departure?.length || 0}개</p>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-white">
+                    출발 기차표 이미지들 선택 (여러 개 선택 가능)
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => e.target.files && handleImageUpload('departure', e.target.files)}
+                    disabled={uploadingImages}
+                    className="w-full px-3 py-2 text-sm bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  <p className="text-xs text-gray-400">
+                    JPG, PNG 파일을 여러 개 선택할 수 있습니다. 기존 이미지는 모두 교체됩니다.
+                  </p>
+                </div>
+
+                {/* 출발 기차표 미리보기 */}
+                {trainImages.departure && trainImages.departure.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-white">현재 출발 기차표들:</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {trainImages.departure.map((url, index) => (
+                        <img 
+                          key={index}
+                          src={url} 
+                          alt={`출발 기차표 ${index + 1}`}
+                          className="w-full h-20 object-cover rounded border border-gray-600"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 도착 기차표 업로드 */}
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 sm:p-4 rounded-lg">
+                  <h3 className="text-base sm:text-lg font-semibold">도착 기차표</h3>
+                  <p className="text-sm opacity-90">현재 {trainImages.return?.length || 0}개</p>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-white">
+                    도착 기차표 이미지들 선택 (여러 개 선택 가능)
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => e.target.files && handleImageUpload('return', e.target.files)}
+                    disabled={uploadingImages}
+                    className="w-full px-3 py-2 text-sm bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  <p className="text-xs text-gray-400">
+                    JPG, PNG 파일을 여러 개 선택할 수 있습니다. 기존 이미지는 모두 교체됩니다.
+                  </p>
+                </div>
+
+                {/* 도착 기차표 미리보기 */}
+                {trainImages.return && trainImages.return.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-white">현재 도착 기차표들:</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {trainImages.return.map((url, index) => (
+                        <img 
+                          key={index}
+                          src={url} 
+                          alt={`도착 기차표 ${index + 1}`}
+                          className="w-full h-20 object-cover rounded border border-gray-600"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {uploadingImages && (
+              <div className="mt-4 text-center">
+                <div className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  이미지 업로드 중...
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* 채팅 메시지 관리 */}
           <div className="bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">질문 & 답변 관리</h2>
@@ -509,4 +664,4 @@ export default function AdminPage() {
       </main>
     </div>
   );
-}
+} 

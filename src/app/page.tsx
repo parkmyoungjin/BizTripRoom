@@ -9,8 +9,10 @@ import {
   Users, 
   MessageCircle, 
   RefreshCw, 
-  Settings
+  Settings,
+  Train
 } from 'lucide-react';
+import TrainTicketModal from '../components/TrainTicketModal';
 
 // 기본 데이터 (localStorage에 데이터가 없을 때 사용)
 const defaultTripInfo = {
@@ -66,6 +68,7 @@ export default function Home() {
   const [replyTo, setReplyTo] = useState<number | null>(null);
   const [authorName, setAuthorName] = useState('');
   const [showReplyModal, setShowReplyModal] = useState(false);
+  const [showTrainTicketModal, setShowTrainTicketModal] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
@@ -218,9 +221,8 @@ export default function Home() {
       setMessages(updatedMessages);
       setNewQuestion('');
       setAuthorName('');
-      setShowReplyModal(false);
     } else {
-      alert('저장에 실패했습니다.');
+      alert('질문 저장에 실패했습니다.');
     }
   };
 
@@ -255,6 +257,7 @@ export default function Home() {
       setNewReply('');
       setReplyTo(null);
       setAuthorName('');
+      setShowReplyModal(false);
     } else {
       alert('답변 저장에 실패했습니다.');
     }
@@ -341,10 +344,19 @@ export default function Home() {
                 
                 {/* 일정 - 모바일 최적화 */}
                 <div className="space-y-3 sm:space-y-4">
-                  <h3 className="text-base sm:text-lg font-semibold text-white flex items-center">
-                    <Calendar className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-                    출장 일정
-                  </h3>
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-base sm:text-lg font-semibold text-white flex items-center">
+                      <Calendar className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                      출장 일정
+                    </h3>
+                    <button
+                      onClick={() => setShowTrainTicketModal(true)}
+                      className="flex items-center px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                    >
+                      <Train className="mr-1 h-4 w-4" />
+                      기차표 확인
+                    </button>
+                  </div>
                   <div className="space-y-2 sm:space-y-3">
                     {tripInfo.schedule.map((item, index) => (
                       <div 
@@ -407,7 +419,7 @@ export default function Home() {
               <div className="p-4 sm:p-6 border-b border-gray-700">
                 <h3 className="text-base sm:text-lg font-semibold text-white flex items-center">
                   <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-                  소통 공간
+                  질문 & 답변
                 </h3>
               </div>
               
@@ -417,7 +429,7 @@ export default function Home() {
                   {messages.map((message) => (
                     <div key={message.id} className="border border-gray-600 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-gray-700">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-medium text-xs sm:text-sm text-blue-400">{message.author}</span>
+                        <span className="font-medium text-xs sm:text-sm text-blue-600">{message.author}</span>
                         <span className="text-xs text-gray-500">{message.time}</span>
                       </div>
                       <p className="text-sm sm:text-base text-white mb-2 sm:mb-3">{message.content}</p>
@@ -439,7 +451,7 @@ export default function Home() {
                       
                       <button 
                         onClick={() => handleQuestionClick(message.id)}
-                        className="mt-2 text-xs sm:text-sm text-blue-400 hover:text-blue-800 font-medium"
+                        className="mt-2 text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium"
                       >
                         답변하기
                       </button>
@@ -461,7 +473,7 @@ export default function Home() {
                   <textarea
                     value={newQuestion}
                     onChange={(e) => setNewQuestion(e.target.value)}
-                    placeholder="내용을 입력하세요..."
+                    placeholder="질문을 입력하세요..."
                     className="w-full px-3 py-2 text-sm sm:text-base bg-gray-600 border border-gray-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none placeholder-gray-300"
                     rows={3}
                   />
@@ -470,7 +482,7 @@ export default function Home() {
                     disabled={!newQuestion.trim() || !authorName.trim()}
                     className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                   >
-                    입력하기
+                    질문하기
                   </button>
                 </div>
               </div>
@@ -510,7 +522,7 @@ export default function Home() {
                   <button
                     onClick={() => replyTo && addReply(replyTo)}
                     disabled={!newReply.trim() || !authorName.trim()}
-                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-400 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                   >
                     답변하기
                   </button>
@@ -520,6 +532,12 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* 기차표 모달 */}
+      <TrainTicketModal 
+        isOpen={showTrainTicketModal}
+        onClose={() => setShowTrainTicketModal(false)}
+      />
 
       {/* 상태 표시 */}
       {lastUpdated && (
