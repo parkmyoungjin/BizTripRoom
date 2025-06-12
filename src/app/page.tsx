@@ -438,7 +438,7 @@ export default function Home() {
                       
                       <button 
                         onClick={() => handleQuestionClick(message.id)}
-                        className="mt-2 text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        className="mt-2 text-xs sm:text-sm text-blue-400 hover:text-blue-800 font-medium"
                       >
                         답변하기
                       </button>
