@@ -416,7 +416,7 @@ export default function Home() {
                   {messages.map((message) => (
                     <div key={message.id} className="border border-gray-600 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-gray-700">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-medium text-xs sm:text-sm text-blue-600">{message.author}</span>
+                        <span className="font-medium text-xs sm:text-sm text-blue-400">{message.author}</span>
                         <span className="text-xs text-gray-500">{message.time}</span>
                       </div>
                       <p className="text-sm sm:text-base text-white mb-2 sm:mb-3">{message.content}</p>
@@ -509,7 +509,7 @@ export default function Home() {
                   <button
                     onClick={() => replyTo && addReply(replyTo)}
                     disabled={!newReply.trim() || !authorName.trim()}
-                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-blue-400 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                   >
                     답변하기
                   </button>
