@@ -344,22 +344,22 @@ export default function Home() {
                 
                 {/* 일정 - 모바일 최적화 */}
                 <div className="space-y-3 sm:space-y-4">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
                     <h3 className="text-base sm:text-lg font-semibold text-white flex items-center">
                       <Calendar className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                       출장 일정
                     </h3>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                       <button
                         onClick={() => setShowTrainTicketModal(true)}
-                        className="flex items-center px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                        className="flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
                       >
                         <Train className="mr-1 h-4 w-4" />
                         기차표 확인
                       </button>
                       <Link
                         href="/attendees"
-                        className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                        className="flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                       >
                         <Users className="mr-1 h-4 w-4" />
                         아산병원 참석자
