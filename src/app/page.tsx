@@ -59,6 +59,29 @@ const defaultMessages = [
   }
 ];
 
+// URL을 자동으로 감지해서 링크로 변환하는 함수
+const renderTextWithLinks = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  
+  return parts.map((part, index) => {
+    if (urlRegex.test(part)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 hover:text-blue-300 underline transition-colors"
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 export default function Home() {
   const [tripInfo, setTripInfo] = useState(defaultTripInfo);
   const [attendees, setAttendees] = useState(defaultAttendees);
@@ -340,7 +363,9 @@ export default function Home() {
               </div>
               
               <div className="p-4 sm:p-6">
-                <p className="text-sm sm:text-base text-gray-300 mb-4 sm:mb-6">{tripInfo.description}</p>
+                <p className="text-sm sm:text-base text-gray-300 mb-4 sm:mb-6">
+                  {renderTextWithLinks(tripInfo.description)}
+                </p>
                 
                 {/* 일정 - 모바일 최적화 */}
                 <div className="space-y-3 sm:space-y-4">
