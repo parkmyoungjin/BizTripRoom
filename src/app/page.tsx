@@ -349,13 +349,22 @@ export default function Home() {
                       <Calendar className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                       출장 일정
                     </h3>
-                    <button
-                      onClick={() => setShowTrainTicketModal(true)}
-                      className="flex items-center px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
-                    >
-                      <Train className="mr-1 h-4 w-4" />
-                      기차표 확인
-                    </button>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => setShowTrainTicketModal(true)}
+                        className="flex items-center px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                      >
+                        <Train className="mr-1 h-4 w-4" />
+                        기차표 확인
+                      </button>
+                      <Link
+                        href="/attendees"
+                        className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                      >
+                        <Users className="mr-1 h-4 w-4" />
+                        아산병원 참석자
+                      </Link>
+                    </div>
                   </div>
                   <div className="space-y-2 sm:space-y-3">
                     {tripInfo.schedule.map((item, index) => (
@@ -429,7 +438,7 @@ export default function Home() {
                   {messages.map((message) => (
                     <div key={message.id} className="border border-gray-600 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-gray-700">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-medium text-xs sm:text-sm text-blue-400">{message.author}</span>
+                        <span className="font-medium text-xs sm:text-sm text-blue-600">{message.author}</span>
                         <span className="text-xs text-gray-500">{message.time}</span>
                       </div>
                       <p className="text-sm sm:text-base text-white mb-2 sm:mb-3">{message.content}</p>
@@ -451,7 +460,7 @@ export default function Home() {
                       
                       <button 
                         onClick={() => handleQuestionClick(message.id)}
-                        className="mt-2 text-xs sm:text-sm text-blue-400 hover:text-blue-800 font-medium"
+                        className="mt-2 text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium"
                       >
                         답변하기
                       </button>
